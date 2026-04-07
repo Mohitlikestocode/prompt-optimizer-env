@@ -1,0 +1,7 @@
+name: prompt_optimizer_env
+version: "1.0.0"
+description: >
+  An RL environment where an agent iteratively rewrites system prompts
+  to make a fixed judge LLM produce specific structured outputs.
+  Reward is fully deterministic Python verification — no LLM judge for scoring.
+  Targets: JSON structure, code correctness, phrase matching, length constraints, refusal behavior.
