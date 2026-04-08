@@ -160,12 +160,12 @@ def _call_judge(system_prompt: str, user_prompt: str) -> str:
     """
     Call the fixed judge LLM with a system+user prompt.
     Reads API_BASE_URL and API_KEY fresh from env at call time
-    so the judges' injected credentials are always used.
+    so the hackathon-injected proxy credentials are always used.
     """
     import openai
 
-    api_key  = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
-    api_base = os.getenv("API_BASE_URL") or "https://router.huggingface.co/v1"
+    api_key  = os.environ["API_KEY"]
+    api_base = os.environ["API_BASE_URL"]
     model    = os.getenv("MODEL_NAME") or "Qwen/Qwen2.5-72B-Instruct"
 
     client = openai.OpenAI(base_url=api_base, api_key=api_key)

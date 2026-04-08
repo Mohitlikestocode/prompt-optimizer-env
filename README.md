@@ -26,7 +26,6 @@ GET  /health # Check server status
 ```
 
 ## Environment Variables
-- `HF_TOKEN` — Hugging Face token
-- `JUDGE_API_KEY` — API key for judge LLM
-- `JUDGE_MODEL` — Judge model name (default: llama-3.1-8b-instant)
-- `JUDGE_API_BASE` — Judge API base URL
+- `API_KEY` — API key injected by the hackathon validator
+- `API_BASE_URL` — LLM proxy base URL injected by the hackathon validator
+- `MODEL_NAME` — Model name to call through the proxy
