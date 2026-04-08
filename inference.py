@@ -145,8 +145,27 @@ def get_agent_action(client: OpenAI, obs_dict: dict) -> str:
         return "You are a helpful assistant. Please follow the task specification carefully."
 
 
+def warmup_proxy_call(client: OpenAI) -> None:
+    """Make a tiny request so the validator can observe at least one proxy call."""
+    try:
+        client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[
+                {"role": "system", "content": "You are a concise assistant."},
+                {"role": "user", "content": "Reply with: ok"},
+            ],
+            temperature=0.0,
+            max_tokens=3,
+            stream=False,
+        )
+    except Exception as exc:
+        # Keep running even if warmup fails; real calls may still succeed.
+        print(f"[DEBUG] Proxy warmup call failed: {exc}", flush=True)
+
+
 async def main() -> None:
     client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+    warmup_proxy_call(client)
 
     if IMAGE_NAME:
         env = await PromptOptimizerEnv.from_docker_image(IMAGE_NAME)
