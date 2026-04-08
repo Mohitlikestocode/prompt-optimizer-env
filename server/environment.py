@@ -164,9 +164,9 @@ def _call_judge(system_prompt: str, user_prompt: str) -> str:
     """
     import openai
 
-    api_base = os.environ.get("API_BASE_URL") or os.environ.get("JUDGE_API_BASE", "https://api.groq.com/openai/v1")
-    api_key  = os.environ.get("API_KEY") or os.environ.get("JUDGE_API_KEY") or os.environ.get("HF_TOKEN", "")
-    model    = os.environ.get("MODEL_NAME") or os.environ.get("JUDGE_MODEL", "llama-3.1-8b-instant")
+    api_base = os.environ.get("API_BASE_URL", "")
+    api_key  = os.environ.get("API_KEY", "")
+    model    = os.environ.get("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
 
     client = openai.OpenAI(base_url=api_base, api_key=api_key)
     try:
