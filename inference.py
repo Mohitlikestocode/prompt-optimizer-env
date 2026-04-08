@@ -24,8 +24,8 @@ from models import PromptOptimizerAction
 
 # ── Configuration ──────────────────────────────────────────────────────────────
 IMAGE_NAME   = os.getenv("LOCAL_IMAGE_NAME")
-API_KEY      = os.environ["API_KEY"]
-API_BASE_URL = os.environ["API_BASE_URL"]
+API_KEY      = os.environ.get("API_KEY") or os.environ.get("HF_TOKEN", "")
+API_BASE_URL = os.environ.get("API_BASE_URL", "https://router.huggingface.co/hf-inference/v1")
 MODEL_NAME   = os.environ.get("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
 TASK_NAME    = os.getenv("PROMPT_OPT_TASK", "json_user_profile")
 BENCHMARK    = "prompt_optimizer"
