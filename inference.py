@@ -24,9 +24,9 @@ from models import PromptOptimizerAction
 
 # ── Configuration ──────────────────────────────────────────────────────────────
 IMAGE_NAME   = os.getenv("LOCAL_IMAGE_NAME")
-API_KEY      = os.getenv("API_KEY") or os.getenv("HF_TOKEN")
-API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/sambanova/v1")
-MODEL_NAME   = os.getenv("MODEL_NAME", "Meta-Llama-3.3-70B-Instruct")
+API_KEY      = os.environ["API_KEY"]
+API_BASE_URL = os.environ["API_BASE_URL"]
+MODEL_NAME   = os.environ.get("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
 TASK_NAME    = os.getenv("PROMPT_OPT_TASK", "json_user_profile")
 BENCHMARK    = "prompt_optimizer"
 MAX_STEPS    = 8

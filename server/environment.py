@@ -153,42 +153,34 @@ TASK_BANK = [
 ]
 
 MAX_STEPS = 8
-JUDGE_MODEL = os.getenv("JUDGE_MODEL", "llama-3.1-8b-instant")
-JUDGE_API_BASE = os.getenv("JUDGE_API_BASE", "https://api.groq.com/openai/v1")
-HF_TOKEN = os.getenv("JUDGE_API_KEY") or os.getenv("HF_TOKEN", "")
 MAX_JUDGE_TOKENS = 512
 
 
 def _call_judge(system_prompt: str, user_prompt: str) -> str:
     """
     Call the fixed judge LLM with a system+user prompt.
-    Returns the judge's text response.
-    This is the ONLY non-deterministic part. The SCORING is always deterministic Python.
+    Reads API_BASE_URL and API_KEY fresh from env at call time
+    so the judges' injected credentials are always used.
     """
-    headers = {
-        "Authorization": f"Bearer {HF_TOKEN}",
-        "Content-Type": "application/json",
-    }
-    payload = {
-        "model": JUDGE_MODEL,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-        "max_tokens": MAX_JUDGE_TOKENS,
-        "temperature": 0.0,  # Deterministic — greedy decoding
-        "stream": False,
-    }
+    import openai
+
+    api_base = os.environ["API_BASE_URL"]
+    api_key  = os.environ["API_KEY"]
+    model    = os.environ.get("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
+
+    client = openai.OpenAI(base_url=api_base, api_key=api_key)
     try:
-        response = httpx.post(
-            f"{JUDGE_API_BASE}/chat/completions",
-            headers=headers,
-            json=payload,
-            timeout=30.0,
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            max_tokens=MAX_JUDGE_TOKENS,
+            temperature=0.0,
+            stream=False,
         )
-        response.raise_for_status()
-        data = response.json()
-        return data["choices"][0]["message"]["content"].strip()
+        return response.choices[0].message.content.strip()
     except Exception as e:
         return f"[JUDGE_ERROR: {e}]"
 
