@@ -164,9 +164,9 @@ def _call_judge(system_prompt: str, user_prompt: str) -> str:
     """
     import openai
 
-    api_base = os.environ.get("API_BASE_URL", "")
-    api_key  = os.environ.get("API_KEY", "")
-    model    = os.environ.get("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
+    api_key  = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
+    api_base = os.getenv("API_BASE_URL") or "https://router.huggingface.co/v1"
+    model    = os.getenv("MODEL_NAME") or "Qwen/Qwen2.5-72B-Instruct"
 
     client = openai.OpenAI(base_url=api_base, api_key=api_key)
     try:

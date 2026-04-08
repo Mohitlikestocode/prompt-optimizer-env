@@ -18,15 +18,15 @@ import os
 import textwrap
 from typing import List, Optional
 
-from openai import AsyncOpenAI
+from openai import OpenAI
 from client import PromptOptimizerEnv
 from models import PromptOptimizerAction
 
 # ── Configuration ──────────────────────────────────────────────────────────────
 IMAGE_NAME   = os.getenv("LOCAL_IMAGE_NAME")
-API_KEY      = os.environ.get("API_KEY", "")
-API_BASE_URL = os.environ.get("API_BASE_URL", "")
-MODEL_NAME   = os.environ.get("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
+API_KEY      = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
+API_BASE_URL = os.getenv("API_BASE_URL") or "https://router.huggingface.co/v1"
+MODEL_NAME   = os.getenv("MODEL_NAME") or "Qwen/Qwen2.5-72B-Instruct"
 TASK_NAME    = os.getenv("PROMPT_OPT_TASK", "json_user_profile")
 BENCHMARK    = "prompt_optimizer"
 MAX_STEPS    = 8
@@ -124,11 +124,11 @@ Now write a better prompt that fixes the failing checks. Output ONLY the prompt 
 """).strip()
 
 
-async def get_agent_action(client: AsyncOpenAI, obs_dict: dict) -> str:
+def get_agent_action(client: OpenAI, obs_dict: dict) -> str:
     """Call the agent LLM to get the next rewritten prompt."""
     user_prompt = build_user_prompt(obs_dict)
     try:
-        completion = await client.chat.completions.create(
+        completion = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
@@ -146,7 +146,7 @@ async def get_agent_action(client: AsyncOpenAI, obs_dict: dict) -> str:
 
 
 async def main() -> None:
-    client = AsyncOpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+    client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
 
     if IMAGE_NAME:
         env = await PromptOptimizerEnv.from_docker_image(IMAGE_NAME)
@@ -181,7 +181,7 @@ async def main() -> None:
 
                 obs_dict = obs.model_dump() if hasattr(obs, "model_dump") else obs.__dict__
 
-                new_prompt = await get_agent_action(client, obs_dict)
+                new_prompt = get_agent_action(client, obs_dict)
 
                 result = await env.step(PromptOptimizerAction(rewritten_prompt=new_prompt))
                 obs = result.observation
